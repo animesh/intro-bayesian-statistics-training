@@ -48,7 +48,7 @@ prior_t <- function(mu, t_s, nu) {
 }
 ```
 
-Update the \code{basicMCMC} code from Exercise 3.2 to sample $\mu$ from its posterior distribution, depending on the data $x$, and the prior choices $t_s$ and $\nu$.
+Update the \code{basicMCMC} code from Exercise 3.1 to sample $\mu$ from its posterior distribution, depending on the data $x$, and the prior choices $t_s$ and $\nu$.
 
 
 ```{r}
