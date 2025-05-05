@@ -48,10 +48,18 @@ run_model <- function(expr, path, reuse = TRUE) {
 For example, in the `Two sample $t$-test in Stan' slide where we display 
 
 ```{r, echo = TRUE, eval = FALSE, message=FALSE, warning=FALSE}
-brmfit <- brm(Height ~ Sex, swiss_army_df) # run the model
+library(brms)
+swiss_army_df<-read.csv('/mnt/c/Users/sharm/OneDrive/Desktop/intro-bayesian-statistics-training/lectures/data/Zurich_data.csv')
+#brmfit <- brm(Height ~ Sex, swiss_army_df) # run the model
+brmfit <- run_model(brm(Height ~ Sex, swiss_army_df), "./t_test_v")
 ```
 
 we actually run the following command in the background (with a different directory)
+```{r}
+plot(brmfit)
+pp_check(brmfit)
+
+```
 
 ```{r, eval = FALSE}
 library(brms) # load the library

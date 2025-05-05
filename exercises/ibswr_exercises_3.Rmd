@@ -57,7 +57,8 @@ target_density <- function(x, nu) {
 and run a short chain with $\nu = 5$ 
 
 ```{r, eval = FALSE}
-basicMCMC(nu = 5)
+valsGen<-basicMCMC(nu = 5)
+hist(valsGen)
 ```
 
 Examine the output MCMC chain for different lengths. How many samples would we need to get close to the Student-$t$ distribution?

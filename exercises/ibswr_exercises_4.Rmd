@@ -50,6 +50,27 @@ prior_t <- function(mu, t_s, nu) {
 
 Update the \code{basicMCMC} code from Exercise 3.2 to sample $\mu$ from its posterior distribution, depending on the data $x$, and the prior choices $t_s$ and $\nu$.
 
+
+```{r}
+basicMCMC <- function(n_its = 1e3, start_x = 0, rw_sd = 1, ...) {
+  xs <- rep(NA, n_its) # to store all the sampled values
+  x <- start_x # starting point
+  xs[1] <- x # first value
+  p_x <- target_density(x, ...) # probability density at current value of x
+  for (ii in 2:n_its) { # MCMC iterations
+    x_prop <- x + rnorm(1, mean = 0, sd = rw_sd) # Gaussian random walk to propose next x
+    p_x_prop <- target_density(x_prop, ...) # probability density at proposed x
+    if (runif(1) < p_x_prop/p_x) { # MH acceptance probability
+      x <- x_prop # accept move
+      p_x <- p_x_prop # update density
+    }
+    xs[ii] <- x # store current position, even when move rejected
+  }
+  return(xs)
+}
+prior_t <- function(mu, t_s, nu) {dt(mu/t_s, nu)/t_s}
+```
+
 For data we will use Gosset's data on barley seed yield from his 1908 paper which introduced the Student-$t$ distribution. The yields (in US cwt per acre) for 11 plots of land for normal seed and seed which has been dried in a kiln are in \code{seed\_data.csv}.
 
 * Read in the data, and extract the relevant quantity as $x$
@@ -57,4 +78,35 @@ For data we will use Gosset's data on barley seed yield from his 1908 paper whic
 * Sample from the posterior distribution of $\mu$
 * Visualise this distribution
 * Obtain estimates for the 95% credible interval of $\mu$
+
+```{r data}
+data<-read.csv("/mnt/c/Users/sharm/OneDrive/Desktop/intro-bayesian-statistics-training/exercises/data/seed_data.csv")
+library(brms) # load the library
+#brmfittt <- brm(Kiln_dried_seed-Regular_seed~1,data)
+plot(brmfittt)
+pp_check(brmfittt,ndraw=100)
+summary(brmfittt)
+```
+```{r}
+basicMCMC <- function(n_its = 1e3, start_x = 0, rw_sd = 1, ...) {
+  xs <- rep(NA, n_its) # to store all the sampled values
+  x <- start_x # starting point
+  xs[1] <- x # first value
+  p_x <- target_density(x, ...) # probability density at current value of x
+  for (ii in 2:n_its) { # MCMC iterations
+    x_prop <- x + rnorm(1, mean = 0, sd = rw_sd) # Gaussian random walk to propose next x
+    p_x_prop <- target_density(x_prop, ...) # probability density at proposed x
+    if (runif(1) < p_x_prop/p_x) { # MH acceptance probability
+      x <- x_prop # accept move
+      p_x <- p_x_prop # update density
+    }
+    xs[ii] <- x # store current position, even when move rejected
+  }
+  return(xs)
+}
+prior_t <- function(mu, t_s, nu) {
+ dt(mu/t_s, nu)/t_s
+ }
+```
+
 

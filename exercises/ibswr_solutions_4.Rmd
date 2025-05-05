@@ -79,7 +79,7 @@ target_density <- function(mu, x2, x1, x0, t_s, nu) { # product
 Next we can read in the data
 
 ```{r}
-seed_df <- read.csv("./data/seed_data.csv")
+seed_df <- read.csv("/mnt/c/Users/sharm/OneDrive/Desktop/intro-bayesian-statistics-training/exercises/data/seed_data.csv")
 head(seed_df)
 ```
 
@@ -103,7 +103,7 @@ short_chain <- basicMCMCmu(x2=x2, x1=x1, x0=x0, t_s=2, nu=5)
 On the histogram we overlay the target density and see ok agreement
 
 ```{r, echo = FALSE, message=FALSE, warning=FALSE}
-source("../lectures/ibswrfiles/colordefs.R")
+source("/mnt/c/Users/sharm/OneDrive/Desktop/intro-bayesian-statistics-training/lectures/ibswrfiles/colordefs.R")
 mus <- 1.5*c(-1000:1000)/1000
 ys <- target_density(mus, x2, x1, x0, t_s=2, nu=5)
 ys <- ys/(sum(ys)*(mus[2]-mus[1])) # normalise

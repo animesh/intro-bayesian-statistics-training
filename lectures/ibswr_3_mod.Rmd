@@ -1,0 +1,982 @@
+---
+title: "Introduction to Bayesian Statistics with R"
+subtitle: "3: Monte Carlo methods"
+author: "Jack Kuipers"
+date: "5 May 2025"
+runtime: shiny
+output:
+  ioslides_presentation:
+    css: ibswr.css
+    incremental: true
+    widescreen: true
+    smaller: true
+    fig_width: 6
+    fig_height: 4.5
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(knitr)
+library(ggplot2)
+```
+
+
+## Dart throwing
+
+<div id="hidestuffless" class="centered">
+```{r circle square}
+sidebarPanel(actionButton("start_CP", "Start"), hr(),
+  selectInput("n_darts", label = "Number of throws:",
+              choices = c(1, 5, 10, 20, 50, 100, 200, 500), selected = 1), hr(),
+  sliderInput("wait_timeCP", label = "Wait time:",
+              min = 100, max = 1000, value = 600, step = 100), width = 2)
+
+rvCP <- reactiveValues(i = 0, samp_value_x = c(), samp_value_y = c(), flag = FALSE)
+
+observeEvent(input$start_CP, {
+  rvCP$i <- 0
+  rvCP$samp_value_x <- runif(1, -1, 1)
+  rvCP$samp_value_y <- runif(1, -1, 1)
+  rvCP$flag <- TRUE
+  observe({
+    if (isolate(rvCP$flag) == TRUE) {
+      isolate({
+        rvCP$i <- rvCP$i + 1
+        rvCP$samp_value_x <- runif(1, -1, 1)
+        rvCP$samp_value_y <- runif(1, -1, 1)      
+      })
+    }
+    if (isolate(rvCP$i) < isolate(as.numeric(input$n_darts))) {
+      invalidateLater(input$wait_timeCP, session)
+    } else {
+      rvCP$flag <- FALSE
+    }
+  })
+})
+
+renderPlot({
+  local_samp_value_x <- rvCP$samp_value_x
+  local_samp_value_y <- rvCP$samp_value_y
+  source("./ibswrfiles/colordefs.R")
+  source("./ibswrfiles/flagFALSE.R")
+  source("./ibswrfiles/circle.R", local = TRUE)
+}, width = 450, height = 450)
+```
+</div>
+
+<span class="question">Question: what's the probability your dart hits the dartboard?<br>(given it is uniformly thrown within the square)</span>
+
+## Dart throwing {.build}
+
+<div>
+<div id="hidestuffless" class="centered">
+```{r circle square many}
+sidebarPanel(actionButton("sample_darts", "Sample"), hr(),
+  selectInput("n_ds", label = "Number of throws:",
+              choices = c(10, 100, 1000, 10000, 100000), selected = 10), width = 2)
+
+renderPlot({
+  tempy <- input$sample_darts
+  local_samp_value_x <- runif(input$n_ds, -1, 1)
+  local_samp_value_y <- runif(input$n_ds, -1, 1)
+  hit_flag <- input$show_frac
+  source("./ibswrfiles/colordefs.R")
+  source("./ibswrfiles/flagTRUE.R")
+  source("./ibswrfiles/circle.R", local = TRUE)
+}, width = 450, height = 450)
+```
+</div>
+
+<span class="answer">Answer: $\frac{\pi}{4} \approx$ `r round(pi/4, 6)` from geometry</span>
+</div>
+
+<div class="columns-2">
+Or we can estimate by throwing lots of darts!
+
+<p class="forceBreak">&nbsp;</p>
+
+```{r fraction checkbox}
+checkboxInput("show_frac", "Show fraction of hits?", value = FALSE)
+```
+
+</div>
+
+## Normal samples
+
+<div id="hidestuffless" class="centered">
+```{r normal middle}
+sidebarPanel(actionButton("start_ns", "Start"), hr(),
+  selectInput("n_ns", label = "Number of samples:",
+              choices = c(1, 5, 10, 20, 50, 100, 200, 500), selected = 1), hr(),
+  sliderInput("wait_time_ns", label = "Wait time:",
+              min = 100, max = 1000, value = 600, step = 100), width = 2)
+
+rv_ns <- reactiveValues(i = 0, samp_value = c(), totalCounts = rep(0, 31), flag = FALSE)
+
+observeEvent(input$start_ns, {
+  rv_ns$i <- 0
+  rv_ns$samp_value <- rnorm(1)
+  rv_ns$totalCounts = rep(0, 31)
+  rv_ns$flag <- TRUE
+  observe({
+    if (isolate(rv_ns$flag) == TRUE) {
+      isolate({
+        rv_ns$i <- rv_ns$i + 1
+        rv_ns$samp_value <- rnorm(1)
+        hitIndex <- floor(rv_ns$samp_value*5) + 16
+        if(hitIndex > 0 && hitIndex < 31){
+          rv_ns$totalCounts[hitIndex] <- rv_ns$totalCounts[hitIndex] + 1
+        } else { # put in rubbish bin
+          rv_ns$totalCounts[31] <- rv_ns$totalCounts[31] + 1
+        }
+      })
+    }
+    if (isolate(rv_ns$i) < isolate(as.numeric(input$n_ns))) {
+      invalidateLater(input$wait_time_ns, session)
+    } else {
+      rv_ns$flag <- FALSE
+    }
+  })
+})
+  
+renderPlot({
+  local_samp_value <- rv_ns$samp_value
+  local_counts <- rv_ns$totalCounts
+  source("./ibswrfiles/colordefs.R")
+  source("./ibswrfiles/flagTRUE.R")
+  source("./ibswrfiles/normalarea.R", local = TRUE)
+}, width = 600, height = 450)
+```
+</div>
+
+<span class="question">Question: what's the probability a standard normal sample is between -1 and 1?</span>
+
+
+```{r cumulative checkbox}
+checkboxInput("show_cum", "Show cumulative hits?", value = FALSE)
+```
+
+
+## Normal samples
+
+<div>
+<div id="hidestuffless" class="centered">
+```{r normal middle many}
+sidebarPanel(actionButton("sample_ns", "Sample"), hr(),
+  selectInput("n_norms", label = "Number of samples:",
+              choices = c(10, 100, 1000, 10000, 100000, 1e6), selected = 10), width = 2)
+
+renderPlot({
+  tempy <- input$sample_ns
+  local_samp_value <- rnorm(input$n_norms)
+  local_samp_value[which(local_samp_value < -3)] <- 3.1
+  local_samp_value[which(local_samp_value > 3)] <- 3.1
+  local_counts <- tabulate(floor(local_samp_value*5)+16, nbins = 31)
+  area_flag <- input$show_area
+  source("./ibswrfiles/colordefs.R")
+  source("./ibswrfiles/flagFT.R")
+  source("./ibswrfiles/normalarea.R", local = TRUE)
+}, width = 600, height = 450)
+```
+</div>
+
+<span class="answer">Answer: `r round(pnorm(1)-pnorm(-1), 6)` from calculus (next slide)</span>
+</div>
+
+<div class="columns-2">
+Or we can estimate from lots of random samples!
+
+<p class="forceBreak">&nbsp;</p>
+
+```{r area checkbox}
+checkboxInput("show_area", "Show fraction inside?", value = FALSE)
+```
+
+</div>
+
+## Integration
+
+<div class="columns-2">
+We are actually integrating
+
+$$\int_{-1}^{1} f(x) \mathrm{d}(x)$$
+
+with $f(x)$ the probability density of a standard normal
+
+$$f(x) = \frac{1}{\sqrt{2\pi}}\mathrm{e}^{-\frac{x^2}{2}}$$
+
+Analytical result is $\Phi(1) - \Phi(-1)$
+
+>- $\Phi$ is CDF of a normal (an error function)  
+
+```{r, echo = TRUE}
+pnorm(1) - pnorm(-1)
+```
+
+<p class="forceBreak">&nbsp;</p>
+
+<div class="centered">
+```{r normal num one}
+renderPlot({
+  source("./ibswrfiles/colordefs.R")
+  source("./ibswrfiles/flagFALSE.R")
+  source("./ibswrfiles/normalareanum.R", local = TRUE)
+}, width = 400, height = 250)
+```
+</div>
+
+</div>
+
+## Numerical integration
+
+<div class="columns-2">
+Let's approximate the integral
+
+$$\int_{-1}^{1} f(x) \mathrm{d}(x)$$
+
+with lots of rectangular bins:
+
+$$ \approx \sum_{i=1}^{B} f(x_i) \delta x$$
+
+>- $B$ bins
+>- $x_i$ are the midpoints of the bins
+>- $\delta x$ is the width of the bins
+
+Numerical result: (*cf* `r round(pnorm(1)-pnorm(-1), 6)`)
+
+```{r}
+renderUI(round(rv_int$int_result, 6))
+```
+
+<p class="forceBreak">&nbsp;</p>
+
+<div class="centered">
+```{r normal num two}
+renderPlot({
+  source("./ibswrfiles/colordefs.R")
+  source("./ibswrfiles/flagTRUE.R")
+  n_bins <- as.numeric(input$n_norm_bins)
+  source("./ibswrfiles/normalareanum.R", local = TRUE)
+}, width = 400, height = 250)
+```
+
+```{r}
+inputPanel(selectInput("n_norm_bins", label = "Number of bins:",
+            choices = c(1, 5, 10, 20, 50, 100), selected = 10))
+
+rv_int <- reactiveValues(int_result = 0)
+
+observeEvent(input$n_norm_bins, {
+  n_bins <- as.numeric(input$n_norm_bins)
+  bs <- seq(-1+1/n_bins, 1-1/n_bins, length.out=n_bins)
+  rv_int$int_result <- 2*sum(dnorm(bs))/(n_bins)
+  }
+)
+```
+</div>
+
+</div>
+
+
+
+## Sampling approximation
+
+<div class="columns-2">
+Or we can approximate the integral
+
+$$\int_{-1}^{1} f(x) \mathrm{d}(x)$$
+
+with lots of normal samples:
+
+$$ \approx \frac{1}{M}\sum_{i=1}^{M} I(-1< x_i < 1)$$
+
+>- $M$ samples 
+>- $x_i$ are the samples $\sim f(x)$
+>- $I$ is the indicator function
+
+Numerical result: (*cf* `r round(pnorm(1)-pnorm(-1), 6)`)
+
+```{r}
+renderUI(round(rv_int_s$int_result, 6))
+```
+
+<p class="forceBreak">&nbsp;</p>
+
+<div class="centered">
+```{r normal num three}
+renderPlot({
+  source("./ibswrfiles/colordefs.R")
+  source("./ibswrfiles/flagsTRUE.R")
+  local_tables <- rv_int_s$tables
+  n_bins <- length(local_tables)
+  source("./ibswrfiles/normalareanum.R", local = TRUE)
+}, width = 400, height = 250)
+```
+
+```{r}
+inputPanel(selectInput("n_norm_samps", label = "Number of samples:",
+            choices = c(1000, 10000, 100000, 1e6), selected = 1000),
+actionButton("n_norm_sample", "Resample"))
+
+rv_int_s <- reactiveValues(int_result = 0, tables = rep(0, 10))
+
+observeEvent({
+  input$n_norm_samps
+  input$n_norm_sample
+  }, {
+  if (is.null(input$n_norm_samps)) {
+    r_samps <- rnorm(1000)
+  } else {
+    r_samps <- rnorm(as.numeric(input$n_norm_samps))
+  }
+  n_bins <- 5*(log10(length(r_samps))-2)
+  in_middle <- which(r_samps < 1 & r_samps > -1)
+  rv_int_s$tables <- n_bins*tabulate(floor((r_samps[in_middle]+1)*n_bins/2)+1, n_bins)/(2*length(r_samps))
+  rv_int_s$int_result <- length(in_middle)/length(r_samps)
+  }, ignoreNULL = FALSE
+)
+```
+</div>
+
+</div>
+
+
+## More integration
+
+<div class="columns-2">
+Let's now integrate
+
+$$\int_{-1}^{1} x^2 f(x) \mathrm{d}(x)$$
+with lots of rectangular bins
+
+$$ \approx \sum_{i=1}^{B} x_i^2 f(x_i) \delta x$$
+
+Numerical result:
+
+```{r}
+renderUI(round(rv_int_x2$int_result, 6))
+```
+
+<br> 
+
+The analytical result is $\Phi(1) - \Phi(-1) - 2f(1)$
+
+```{r, echo = TRUE}
+pnorm(1) - pnorm(-1) - 2*dnorm(1)
+```
+
+
+<p class="forceBreak">&nbsp;</p>
+
+<div class="centered">
+```{r x2 normal num one}
+renderPlot({
+  source("./ibswrfiles/colordefs.R")
+  source("./ibswrfiles/flagTRUE.R")
+  n_bins <- as.numeric(input$n_norm_binsx2)
+  source("./ibswrfiles/x2normalareanum.R", local = TRUE)
+}, width = 400, height = 250)
+```
+
+```{r}
+inputPanel(selectInput("n_norm_binsx2", label = "Number of bins:",
+            choices = c(5, 10, 20, 50, 100, 200), selected = 10))
+
+rv_int_x2 <- reactiveValues(int_result = 0)
+
+observeEvent(input$n_norm_binsx2, {
+  n_bins <- as.numeric(input$n_norm_binsx2)
+  bs <- seq(-1+1/n_bins, 1-1/n_bins, length.out=n_bins)
+  rv_int_x2$int_result <- 2*sum(dnorm(bs)*bs^2)/(n_bins)
+  }
+)
+```
+</div>
+
+</div>
+
+
+## More integration split
+
+<div id ="hidestuffmore" class="columns-2">
+
+<br><br><br>
+
+Let's now integrate
+
+$$\int_{-1}^{1} x^2 f(x) \mathrm{d}(x)$$
+
+with lots of rectangular bins
+
+$$ \approx \sum_{i=1}^{B} x_i^2 f(x_i) \delta x$$
+
+Numerical result: (*cf* `r round(pnorm(1) - pnorm(-1) - 2*dnorm(1), 6)`)
+
+```{r}
+renderUI(round(rv_int_x2two$int_result, 6))
+```
+
+<br>
+
+Same as multiplying the bins from normal
+
+>- by $x_i^2$ at their midpoints
+
+$$ x_i^2 \cdot f(x_i) \delta x$$
+
+
+<p class="forceBreak">&nbsp;</p>
+
+<div class="centered">
+```{r x2 normal num split x}
+renderPlot({
+  source("./ibswrfiles/colordefs.R")
+  source("./ibswrfiles/flagTRUE.R")
+  n_bins <- as.numeric(input$n_norm_binsx2two)
+  source("./ibswrfiles/x2curvenum.R", local = TRUE)
+}, width = 400, height = 150)
+
+renderPlot({
+  source("./ibswrfiles/colordefs.R")
+  source("./ibswrfiles/flagTRUE.R")
+  n_bins <- as.numeric(input$n_norm_binsx2two)
+  source("./ibswrfiles/normalareanum.R", local = TRUE)
+}, width = 400, height = 250)
+```
+
+```{r}
+inputPanel(selectInput("n_norm_binsx2two", label = "Number of bins:",
+            choices = c(10, 20, 50, 100), selected = 10))
+
+rv_int_x2two <- reactiveValues(int_result = 0)
+
+observeEvent(input$n_norm_binsx2two, {
+  n_bins <- as.numeric(input$n_norm_binsx2two)
+  bs <- seq(-1+1/n_bins, 1-1/n_bins, length.out=n_bins)
+  rv_int_x2two$int_result <- 2*sum(dnorm(bs)*bs^2)/(n_bins)
+  }
+)
+```
+</div>
+
+</div>
+
+
+## More integration sampling
+
+<div id ="hidestuffmore" class="columns-2">
+
+<br><br><br>
+
+For our integral
+
+$$\int_{-1}^{1} x^2 f(x) \mathrm{d}(x)$$
+
+we can replace the normal bins
+
+>- with samples from the normal
+
+$$ \approx \frac{1}{M}\sum_{i=1}^{M} x_i^2 I(-1< x_i < 1)$$
+
+Since the $x_i$ are sampled $\sim f(x)$
+
+>- we just need to average $x^2$ over the sample
+
+Numerical result: (*cf* `r round(pnorm(1) - pnorm(-1) - 2*dnorm(1), 6)`)
+
+```{r}
+renderUI(round(rv_int_sx2$int_result, 6))
+```
+
+<p class="forceBreak">&nbsp;</p>
+
+<div class="centered">
+```{r x2 normal num split two}
+renderPlot({
+  source("./ibswrfiles/colordefs.R")
+  source("./ibswrfiles/flagFALSE.R")
+  source("./ibswrfiles/x2curvenum.R", local = TRUE)
+}, width = 400, height = 150)
+
+renderPlot({
+  source("./ibswrfiles/colordefs.R")
+  source("./ibswrfiles/flagsTRUE.R")
+  local_tables <- rv_int_sx2$tables
+  n_bins <- length(local_tables)
+  source("./ibswrfiles/normalareanum.R", local = TRUE)
+}, width = 400, height = 250)
+```
+
+```{r}
+inputPanel(selectInput("n_norm_sampsx2", label = "Number of samples:",
+            choices = c(1000, 10000, 100000, 1e6), selected = 1000),
+actionButton("n_norm_samplex2", "Resample"))
+
+rv_int_sx2 <- reactiveValues(int_result = 0, tables = rep(0, 10))
+
+observeEvent({
+  input$n_norm_sampsx2
+  input$n_norm_samplex2
+  }, {
+  if (is.null(input$n_norm_sampsx2)) {
+    r_samps <- rnorm(1000)
+  } else {
+    r_samps <- rnorm(as.numeric(input$n_norm_sampsx2))
+  }
+  n_bins <- 5*(log10(length(r_samps))-2)
+  in_middle <- which(r_samps < 1 & r_samps > -1)
+  rv_int_sx2$tables <- n_bins*tabulate(floor((r_samps[in_middle]+1)*n_bins/2)+1, n_bins)/(2*length(r_samps))
+  rv_int_sx2$int_result <- sum(r_samps[in_middle]^2)/length(r_samps)
+  }, ignoreNULL = FALSE
+)
+```
+
+</div>
+
+</div>
+
+
+## Monte Carlo approximation {.build}
+
+<div>
+In general, these integrals are <span class="def">expectations</span>
+
+$$E[g(x)] = \int g(x) p(x) \mathrm{d} x$$
+</div>
+
+<div>
+If we can sample proportionally to $p(x)$
+
+>- can use <span class="def">Monte Carlo</span> approximation
+
+$$E[g(x)] \approx \frac{1}{M} \sum_{i=1}^{M} g(x_i) $$
+
+>- for $M$ random samples $x_i$, sampled $\sim p(x)$
+</div>
+
+<div>
+Accuracy typically scales like $\frac{1}{\sqrt{M}}$ for any dimension
+
+>- number of bins for numerical integration grows exponentially in the dimension
+</div>
+
+<div>
+Lies behind lots of Bayesian analyses
+
+<span class="question">Question: how do we get samples from arbitrary distributions?</span>
+</div>
+
+
+## MCMC {.build}
+
+Markov Chain Monte Carlo (MCMC) **Metropolis, Rosenbluth**$\times$**2, Teller**$\times$**2 (1953); Hastings  (1970)**
+
+<div>
+To sample proportionally to any function $p(x)$:
+</div>
+
+<div>
+[1.] From current position $x$, propose a new position $x'$
+
+$$x' = x + \delta\, , \qquad \delta \sim q(d)$$
+
+>- with a symmetric distribution $q$(d), *eg* a normal (can modify algorithm for asymmetric too)
+</div>
+
+<div>
+[2.] Accept $x'$ with probability
+
+$$\min \left(1, \frac{p(x')}{p(x)}\right)$$
+
+>- and move current position to $x'$
+>- otherwise stay at $x$
+</div>
+
+<div>
+[3.] Repeat, that's all!
+
+>- (though it may take many iterations to converge)
+</div>
+
+
+## MCMC example
+
+```{r}
+sidebarPanel(actionButton("mcmc_step", "Next step"), width = 2)
+
+target_dens <- function(x) {
+  0.6*dnorm(x, -0.6, 0.6/1.6) + 0.4*dnorm(x, 0.4, 0.4/1.6)
+}
+
+q_sd <- 0.42
+
+rv_mcmc <- reactiveValues(x = 0, 
+                          x_p = 0,
+                          mh_rat = 0,
+                          acc_flag = 0)
+
+observeEvent(input$mcmc_step, {
+  if (rv_mcmc$acc_flag) {
+    rv_mcmc$x <- rv_mcmc$x_p
+  }
+  rv_mcmc$x_p <- rv_mcmc$x + rnorm(1, 0, q_sd)
+  rv_mcmc$mh_rat <- min(1, target_dens(rv_mcmc$x_p)/target_dens(rv_mcmc$x))
+  rv_mcmc$acc_flag <- 1*(runif(1) < rv_mcmc$mh_rat)
+  }, ignoreNULL = FALSE, ignoreInit = TRUE
+)
+
+renderPlot({
+  source("./ibswrfiles/colordefs.R")
+  source("./ibswrfiles/flagFALSE.R")
+  cur_x <- rv_mcmc$x
+  x_p <- rv_mcmc$x_p
+  acc_flag <- rv_mcmc$acc_flag
+  source("./ibswrfiles/mcmc_ex.R", local = TRUE)
+}, width = 800, height = 400)
+```
+
+```{r}
+renderUI(paste0("Current x: ", round(rv_mcmc$x, 6)))
+renderUI(paste0("Proposed x: ", round(rv_mcmc$x_p, 6)))
+```
+
+```{r}
+renderUI(paste0("Acceptance probability: ", round(rv_mcmc$mh_rat, 6)))
+renderUI(paste0("Move was ", ifelse(rv_mcmc$acc_flag == 1, "accepted", "rejected"), "."))
+```
+
+
+## MCMC samples
+
+<div id="hidestuffless" class="centered">
+```{r mcmc chain}
+sidebarPanel(actionButton("start_mcmc", "Start"), hr(),
+  selectInput("n_mcmc", label = "Number of samples:",
+              choices = c(1, 10, 40, 100, 400, 1000), selected = 1), hr(),
+  sliderInput("wait_time_mcmc", label = "Wait time:",
+              min = 50, max = 500, value = 500, step = 50), width = 2)
+
+rv_mcmc2 <- reactiveValues(i = 0, x = 0, x_p = 0, mh_rat = 0, acc_flag = 0,
+                           totalCounts = rep(0, 31), flag = FALSE)
+
+observeEvent(input$start_mcmc, {
+  rv_mcmc2$i <- 0
+  rv_mcmc2$x_p <- rv_mcmc2$x + rnorm(1, 0, q_sd)
+  rv_mcmc2$mh_rat <- min(1, target_dens(rv_mcmc2$x_p)/target_dens(rv_mcmc2$x))
+  rv_mcmc2$acc_flag <- 1*(runif(1) < rv_mcmc2$mh_rat)
+  rv_mcmc2$totalCounts = rep(0, 31)
+  rv_mcmc2$flag <- TRUE
+  observe({
+    if (isolate(rv_mcmc2$flag) == TRUE) {
+      isolate({
+        rv_mcmc2$i <- rv_mcmc2$i + 1
+        if (rv_mcmc2$acc_flag) {
+          rv_mcmc2$x <- rv_mcmc2$x_p
+        }
+        rv_mcmc2$x_p <- rv_mcmc2$x + rnorm(1, 0, q_sd)
+        rv_mcmc2$mh_rat <- min(1, target_dens(rv_mcmc2$x_p)/target_dens(rv_mcmc2$x))
+        rv_mcmc2$acc_flag <- 1*(runif(1) < rv_mcmc2$mh_rat)
+        hitIndex <- floor(rv_mcmc2$x*5) + 16
+        if(hitIndex > 0 && hitIndex < 31){
+          rv_mcmc2$totalCounts[hitIndex] <- rv_mcmc2$totalCounts[hitIndex] + 1
+        } else { # put in rubbish bin
+          rv_mcmc2$totalCounts[31] <- rv_mcmc2$totalCounts[31] + 1
+        }
+      })
+    }
+    if (isolate(rv_mcmc2$i) < isolate(as.numeric(input$n_mcmc))) {
+      invalidateLater(input$wait_time_mcmc, session)
+    } else {
+      rv_mcmc2$flag <- FALSE
+    }
+  })
+})
+  
+renderPlot({
+  cur_x <- rv_mcmc2$x
+  x_p <- rv_mcmc2$x_p
+  acc_flag <- rv_mcmc2$acc_flag
+  local_counts <- rv_mcmc2$totalCounts
+  source("./ibswrfiles/colordefs.R")
+  source("./ibswrfiles/flagTRUE.R")
+  source("./ibswrfiles/mcmc_ex.R", local = TRUE)
+}, width = 600, height = 450)
+```
+</div>
+
+## HMC {.build}
+
+Hamiltonian Monte Carlo (HMC) **Duane, Kennedy, Pendleton and Roweth (1987); Neal (1995, 2011)**
+
+<div>
+To sample proportionally to any function $p(x)$: add a new dimension $\rho$!
+</div>
+
+<div>
+Make $\rho$ Gaussian, and define the negative log-likelihood as an energy surface
+$$H(x,\rho) = -\log\{p(x)\} + \frac{\rho^2}{2}$$
+</div>
+
+<div>
+[1.] From current position $x$, sample a Gaussian $\rho$ and propose a new pair $(x', \rho')$ by propagating (numerically) under the (energy-preserving) Hamiltonian dynamics: $\frac{\mathrm{d}x}{\mathrm{d}t} = \frac{\partial H}{\partial \rho}, \,   \frac{\mathrm{d}\rho}{\mathrm{d}t} = -\frac{\partial H}{\partial x}$
+</div>
+
+<div>
+[2.] Accept $x'$ with probability
+
+$$\min \left(1, \exp\{H(x,\rho) - H(x', \rho')\}\right) \approx 1$$
+
+>- and move current position to $x'$
+>- otherwise stay at $x$
+</div>
+
+<div>
+[3.] Repeat, that's all!
+</div>
+
+
+## HMC example
+
+```{r}
+sidebarPanel(actionButton("hmc_step", "Next step"), width = 2)
+
+target_dens <- function(x) {
+  0.6*dnorm(x, -0.6, 0.6/1.6) + 0.4*dnorm(x, 0.4, 0.4/1.6)
+}
+
+U <- function(x) {
+  part1 <- 0.6*dnorm(x, -0.6, 0.6/1.6)
+  part2 <- 0.4*dnorm(x, 0.4, 0.4/1.6)
+  d1 <- -(x+0.6)/(0.6/1.6)^2*part1
+  d2 <- -(x-0.4)/(0.4/1.6)^2*part2
+  dist <- part1 +  part2
+  grad <- d1 + d2
+  return(list(U = -log(dist), grad = -grad/dist))
+}
+
+xs <- 10*c(-300:300)/1000
+ys <- target_dens(xs)
+yscale <- max(ys)
+
+rhos <- c(-100:100)/20
+z <- outer(-log(ys), rhos^2/2, "+")
+
+q_sd <- 0.42
+
+L <- 10
+
+rv_hmc <- reactiveValues(x = 0, 
+                         x_p = 0,
+                         p = 0,
+                         p_p = 0,
+                         xs = rep(0,L+1),
+                         ps = rep(0,L+1),
+                         mh_rat = 0,
+                         acc_flag = 0)
+
+observeEvent(input$hmc_step, {
+  if (rv_hmc$acc_flag) {
+    rv_hmc$x <- rv_hmc$x_p
+  }
+  q <- rv_hmc$x
+  p <- rnorm(1,0,1)
+  rv_hmc$p <- p
+  p0 <- p
+  epsilon <- 0.1
+  qs <- rep(0,L+1)
+  ps <- rep(0,L+1)
+  qs[1] <- q
+  U_q <- U(q)
+  p <- p - epsilon / 2 * U_q$grad
+  ps[1] <- p
+    for (j in 1:L) {
+      # Make a full step for the position
+      q <- q + epsilon * p 
+      # Make a full step for the momentum
+      # Make a half step for momentum at the end
+      U_q_new <- U(q)
+      p <- p - epsilon * U_q_new$grad/(1 + (j==L))
+      qs[j+1] <- q
+      ps[j+1] <- p
+    }
+  rv_hmc$xs <- qs
+  rv_hmc$ps <- c(p0, ((ps[-(L+1)]+ps[-1])/2)[-L], p)
+  rv_hmc$x_p <- q
+  rv_hmc$p_p <- p
+  rv_hmc$mh_rat <- min(1, exp(U_q$U + p0^2/2 - U_q_new$U - p^2/2))
+  rv_hmc$acc_flag <- 1*(runif(1) < rv_hmc$mh_rat)
+  }, ignoreNULL = FALSE, ignoreInit = TRUE
+)
+
+renderPlot({
+  source("./ibswrfiles/colordefs.R")
+  source("./ibswrfiles/flagFALSE.R")
+  cur_x <- rv_hmc$x
+  x_p <- rv_hmc$x_p
+  acc_flag <- rv_hmc$acc_flag
+  step_rhos <- rv_hmc$ps
+  step_xs <- rv_hmc$xs
+  source("./ibswrfiles/hmc_ex.R", local = TRUE)
+}, width = 800, height = 400)
+```
+
+```{r}
+renderUI(paste0("Current x: ", round(rv_hmc$x, 6), ", random \u03c1: ", round(rv_hmc$p, 6)))
+renderUI(paste0("Proposed x: ", round(rv_hmc$x_p, 6), ", proposed \u03c1: ", round(rv_hmc$p_p, 6)))
+```
+
+```{r}
+renderUI(paste0("Acceptance probability: ", round(rv_hmc$mh_rat, 6)))
+renderUI(paste0("Move was ", ifelse(rv_hmc$acc_flag == 1, "accepted", "rejected"), "."))
+```
+
+
+## HMC samples
+
+<div id="hidestuffless" class="centered">
+```{r hmc chain}
+sidebarPanel(actionButton("start_hmc", "Start"), hr(),
+  selectInput("n_hmc", label = "Number of samples:",
+              choices = c(1, 10, 40, 100, 400, 1000), selected = 1), hr(),
+  sliderInput("wait_time_hmc", label = "Wait time:",
+              min = 50, max = 500, value = 500, step = 50), width = 2)
+
+rv_hmc2 <- reactiveValues(i = 0, x = 0, x_p = 0, 
+                          p = 0, p_p = 0, xs = rep(0,L+1), ps = rep(0,L+1),
+                         mh_rat = 0, acc_flag = 0,
+                           totalCounts = rep(0, 31), flag = FALSE)
+
+observeEvent(input$start_hmc, {
+  rv_hmc2$i <- 0
+  q <- rv_hmc2$x
+  p <- rnorm(1,0,1)
+  rv_hmc2$p <- p
+  p0 <- p
+  epsilon <- 0.1
+  qs <- rep(0,L+1)
+  ps <- rep(0,L+1)
+  qs[1] <- q
+  U_q <- U(q)
+  p <- p - epsilon / 2 * U_q$grad
+  ps[1] <- p
+    for (j in 1:L) {
+      # Make a full step for the position
+      q <- q + epsilon * p 
+      # Make a full step for the momentum
+      # Make a half step for momentum at the end
+      U_q_new <- U(q)
+      p <- p - epsilon * U_q_new$grad/(1 + (j==L))
+      qs[j+1] <- q
+      ps[j+1] <- p
+    }
+  rv_hmc2$xs <- qs
+  rv_hmc2$ps <- c(p0, ((ps[-(L+1)]+ps[-1])/2)[-L], p)
+  rv_hmc2$x_p <- q
+  rv_hmc2$p_p <- p
+  rv_hmc2$mh_rat <- min(1, exp(U_q$U + p0^2/2 - U_q_new$U - p^2/2))
+  rv_hmc2$acc_flag <- 1*(runif(1) < rv_hmc2$mh_rat)
+  rv_hmc2$totalCounts = rep(0, 31)
+  rv_hmc2$flag <- TRUE
+  observe({
+    if (isolate(rv_hmc2$flag) == TRUE) {
+      isolate({
+        rv_hmc2$i <- rv_hmc2$i + 1
+        if (rv_hmc2$acc_flag) {
+          rv_hmc2$x <- rv_hmc2$x_p
+        }
+  q <- rv_hmc2$x
+  p <- rnorm(1,0,1)
+  rv_hmc2$p <- p
+  p0 <- p
+  epsilon <- 0.1
+  qs <- rep(0,L+1)
+  ps <- rep(0,L+1)
+  qs[1] <- q
+  U_q <- U(q)
+  p <- p - epsilon / 2 * U_q$grad
+  ps[1] <- p
+    for (j in 1:L) {
+      # Make a full step for the position
+      q <- q + epsilon * p 
+      # Make a full step for the momentum
+      # Make a half step for momentum at the end
+      U_q_new <- U(q)
+      p <- p - epsilon * U_q_new$grad/(1 + (j==L))
+      qs[j+1] <- q
+      ps[j+1] <- p
+    }
+  rv_hmc2$xs <- qs
+  rv_hmc2$ps <- c(p0, ((ps[-(L+1)]+ps[-1])/2)[-L], p)
+  rv_hmc2$x_p <- q
+  rv_hmc2$p_p <- p
+  rv_hmc2$mh_rat <- min(1, exp(U_q$U + p0^2/2 - U_q_new$U - p^2/2))
+        rv_hmc2$acc_flag <- 1*(runif(1) < rv_hmc2$mh_rat)
+        hitIndex <- floor(rv_hmc2$x*5) + 16
+        if(hitIndex > 0 && hitIndex < 31){
+          rv_hmc2$totalCounts[hitIndex] <- rv_hmc2$totalCounts[hitIndex] + 1
+        } else { # put in rubbish bin
+          rv_hmc2$totalCounts[31] <- rv_hmc2$totalCounts[31] + 1
+        }
+      })
+    }
+    if (isolate(rv_hmc2$i) < isolate(as.numeric(input$n_hmc))) {
+      invalidateLater(input$wait_time_hmc, session)
+    } else {
+      rv_hmc2$flag <- FALSE
+    }
+  })
+})
+  
+renderPlot({
+  source("./ibswrfiles/colordefs.R")
+  source("./ibswrfiles/flagTRUE.R")
+  cur_x <- rv_hmc2$x
+  x_p <- rv_hmc2$x_p
+  acc_flag <- rv_hmc2$acc_flag
+  step_rhos <- rv_hmc2$ps
+  step_xs <- rv_hmc2$xs
+  local_counts <- rv_hmc2$totalCounts
+  source("./ibswrfiles/hmc_ex.R", local = TRUE)
+}, width = 600, height = 450)
+```
+</div>
+
+
+## Summary {.build}
+
+<div>
+With random samples can obtain <span class="def">Monte Carlo</span> estimates
+
+>- to expectations and integrals
+</div>
+
+<div>
+Behind the scenes in most <span class="def">Bayesian</span> analyses
+</div>
+
+<div>
+To obtain random samples estimates
+
+>- can use <span class="def">Markov Chain Monte Carlo</span> (MCMC)
+</div>
+
+<div>
+Start of chain correlated with initial point
+
+>- often remove initial <span class="def">burn-in</span> iterations
+</div>
+
+<div>
+Faster, more computationally efficient schemes
+
+>- <span class="def">Hamiltonian Monte Carlo</span> (HMC)
+</div>
+
+<div>
+$\rightarrow$ Exercises 3
+</div>
+
+
+
+

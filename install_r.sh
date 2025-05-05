@@ -18,5 +18,8 @@ R --version
 #- Required dependencies including Fortran compiler (needed for certain statistical packages)
 #- Several standard R packages that are part of the recommended set
 #Your R environment is now set up with the latest version and ready to be used with the Bayesian statistics training materials in your workspace. You can start R by simply typing `R` in the terminal, or use RStudio if you prefer a graphical interface.
-rstudio-server start
+#wget https://download1.rstudio.org/electron/jammy/amd64/rstudio-2024.12.1-563-amd64-debian.tar.gz
+#tar xvzf rstudio-2024.12.1-563-amd64-debian.tar.gz
+nohup rstudio-server start &
+#Your application running on port 8787 is available.  [See all forwarded ports](command:~remote.forwardedPorts.focus)
 #click on the link accessing the port 8787

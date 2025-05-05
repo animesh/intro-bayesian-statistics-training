@@ -1,0 +1,86 @@
+```{r sampler}
+basicMCMCmu <- function(n_its = 1e3, start_mu = 0, rw_sd = 1, x2 = NULL, x1 = NULL, x0 = NULL, t_s = NULL, nu = NULL) {
+  mus <- rep(NA, n_its) # to store all the sampled values
+  mu <- start_mu # starting point
+  mus[1] <- mu # first value
+  # probability density at current value of mu
+  p_mu <- target_density(mu, x2 = x2, x1 = x1, x0 = x0, t_s = t_s, nu = nu) 
+  for (ii in 2:n_its) { # MCMC iterations
+    mu_prop <- mu + rnorm(1, mean = 0, sd = rw_sd) # Gaussian random walk to propose next mu
+    # probability density at proposed mu
+    p_mu_prop <- target_density(mu_prop, x2 = x2, x1 = x1, x0 = x0, t_s = t_s, nu = nu)
+    if (runif(1) < p_mu_prop/p_mu) { # MH acceptance probability
+      mu <- mu_prop # accept move
+      p_mu <- p_mu_prop # update density
+    }
+    mus[ii] <- mu # store current position, even when move rejected
+  }
+  return(mus)
+}
+```
+
+
+```{r posterior}
+g_like <- function(mu, sigma, x2, x1, x0) {
+  exp(-(x2 - 2*mu*x1 + x0*mu^2)/(2*sigma^2))/(sigma^x0)
+}
+prior_t <- function(mu, t_s, nu) { # prior
+  dt(mu/t_s, nu)/t_s # scaled student-t density
+}
+target_density <- function(mu, x2, x1, x0, t_s, nu) { # product
+  g_like(mu, sigma=1, x2, x1, x0)*prior_t(mu, t_s, nu)
+}
+```
+
+```{r ttData}
+seed_df <- read.csv("/mnt/c/Users/sharm/OneDrive/Desktop/intro-bayesian-statistics-training/exercises/data/seed_data.csv")
+summary(seed_df)
+```
+
+```{r pairTT}
+x<-seed_df$Kiln_dried_seed - seed_df$Regular_seed
+t.test(x)
+```
+
+```{r pairTTpar}
+x2 <- sum(x^2)
+x1 <- sum(x)
+x0 <- length(x)
+```
+
+```{r sample}
+short_chain <- basicMCMCmu(x2=x2, x1=x1, x0=x0, t_s=1, nu=10)
+```
+
+
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+source("/mnt/c/Users/sharm/OneDrive/Desktop/intro-bayesian-statistics-training/lectures/ibswrfiles/colordefs.R")
+mus <- 1.5*c(-1000:1000)/1000
+ys <- target_density(mus, x2, x1, x0, t_s=2, nu=5)
+ys <- ys/(sum(ys)*(mus[2]-mus[1])) # normalise
+dfmu <- data.frame(mus, ys)
+# data from short chain
+hist_t_plot <- function(df, dfmu) {
+  pp <- ggplot(df)
+  pp <- pp + geom_histogram(data = df, aes(x = mu, y = ..density..), bins = 30,
+          position = "identity", colour = "darkorange", fill = darkorangetrans) +
+          ylab("Density") + xlab(expression(mu)) + xlim(c(-1.5, 1.5))
+  pp <- pp + geom_point(data = dfmu, aes(mus, ys), colour = "dodgerblue", size = 2) + 
+    theme_bw(base_size = 18) 
+  print(pp)
+}
+hist_t_plot(data.frame(mu = short_chain), dfmu)
+```
+
+
+```{r moreS}
+long_chain <- basicMCMCmu(n_its=1e5, x2=x2, x1=x1, x0=x0, t_s=1, nu=10)
+hist_t_plot(data.frame(mu = long_chain), dfmu)
+```
+
+```{r credibleInt}
+round(quantile(long_chain, c(0.025, 0.975)), 2)
+```
+
+

@@ -1,0 +1,342 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{titling}
+\renewcommand\maketitlehooka{%
+  \setlength\parindent{0pt}%
+  \vskip -5ex
+  \begin{minipage}{\textwidth}
+      \includegraphics[height=1cm]{./logos/cbg_logo.pdf}\hfill
+      \includegraphics[height=0.6cm]{./logos/dbsse_logo.pdf}\hfill
+      \includegraphics[height=0.6cm]{./logos/eth_logo.pdf}
+  \end{minipage}\vskip 10ex
+  \par
+}
+%\usepackage[table]{xcolor}
+%\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{subfig}
+%\usepackage{pgfplots}
+%\usetikzlibrary{arrows}
+
+\newcommand{\code}[1]{{\texttt{#1}}}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Introduction to Bayesian Statistics with R},
+  pdfauthor={Jack Kuipers},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Introduction to Bayesian Statistics with R}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{3: Exercises}
+\author{Jack Kuipers}
+\date{5 May 2025}
+
+\begin{document}
+\maketitle
+
+\subsection{Exercise 3.1 - MCMC}\label{exercise-3.1---mcmc}
+
+For MCMC we can walk randomly and accept according the the MH ratio to
+eventually sample proportionally to any target distribution \(p(x)\)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# simple MCMC function}
+\CommentTok{\# n\_its is the number of iterations}
+\CommentTok{\# start\_x the initial position}
+\CommentTok{\# rw\_sd is the sd of the Gaussian random walk}
+\NormalTok{basicMCMC }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(}\AttributeTok{n\_its =} \FloatTok{1e3}\NormalTok{, }\AttributeTok{start\_x =} \DecValTok{0}\NormalTok{, }\AttributeTok{rw\_sd =} \DecValTok{1}\NormalTok{, ...) \{}
+\NormalTok{  xs }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{, n\_its) }\CommentTok{\# to store all the sampled values}
+\NormalTok{  x }\OtherTok{\textless{}{-}}\NormalTok{ start\_x }\CommentTok{\# starting point}
+\NormalTok{  xs[}\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ x }\CommentTok{\# first value}
+\NormalTok{  p\_x }\OtherTok{\textless{}{-}} \FunctionTok{target\_density}\NormalTok{(x, ...) }\CommentTok{\# probability density at current value of x}
+  \ControlFlowTok{for}\NormalTok{ (ii }\ControlFlowTok{in} \DecValTok{2}\SpecialCharTok{:}\NormalTok{n\_its) \{ }\CommentTok{\# MCMC iterations}
+\NormalTok{    x\_prop }\OtherTok{\textless{}{-}}\NormalTok{ x }\SpecialCharTok{+} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{mean =} \DecValTok{0}\NormalTok{, }\AttributeTok{sd =}\NormalTok{ rw\_sd) }\CommentTok{\# Gaussian random walk to propose next x}
+\NormalTok{    p\_x\_prop }\OtherTok{\textless{}{-}} \FunctionTok{target\_density}\NormalTok{(x\_prop, ...) }\CommentTok{\# probability density at proposed x}
+    \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{runif}\NormalTok{(}\DecValTok{1}\NormalTok{) }\SpecialCharTok{\textless{}}\NormalTok{ p\_x\_prop}\SpecialCharTok{/}\NormalTok{p\_x) \{ }\CommentTok{\# MH acceptance probability}
+\NormalTok{      x }\OtherTok{\textless{}{-}}\NormalTok{ x\_prop }\CommentTok{\# accept move}
+\NormalTok{      p\_x }\OtherTok{\textless{}{-}}\NormalTok{ p\_x\_prop }\CommentTok{\# update density}
+\NormalTok{    \}}
+\NormalTok{    xs[ii] }\OtherTok{\textless{}{-}}\NormalTok{ x }\CommentTok{\# store current position, even when move rejected}
+\NormalTok{  \}}
+  \FunctionTok{return}\NormalTok{(xs)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+For example, if we want to sample from a Student-\(t\) distribution we
+can use the following target
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{target\_density }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, nu) \{}
+  \FunctionTok{dt}\NormalTok{(x, nu) }\CommentTok{\# Student{-}t density}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+and run a short chain with \(\nu = 5\)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{basicMCMC}\NormalTok{(}\AttributeTok{nu =} \DecValTok{5}\NormalTok{)}
+\FunctionTok{hist}\NormalTok{(}\FunctionTok{basicMCMC}\NormalTok{(}\AttributeTok{nu =} \DecValTok{5}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+Examine the output MCMC chain for different lengths. How many samples
+would we need to get close to the Student-\(t\) distribution?
+
+Use the samples to estimate (see also the description in Bonus Exercise
+3.3)
+
+\[\int \cos(t) f_5(t) \mathrm{d} t \, , \qquad f_{\nu}(t) = \frac{\Gamma\left(\frac{\nu+1}{2}\right)}{\sqrt{\pi\nu}\Gamma\left(\frac{\nu}{2}\right)}\left(1+\frac{t^2}{\nu}\right)^{-\frac{\nu+1}{2}}\]
+where \(f_{\nu}(t)\) is the probability density of a Student's
+\(t\)-distribution with \(\nu\) degrees of freedom.
+
+\subsection{Bonus Exercise 3.2 - HMC}\label{bonus-exercise-3.2---hmc}
+
+\textbf{NOTE}: This exercise is an optional bonus for when you have
+sufficient free time.
+
+In HMC we move in the constant energy space (using Hamiltonian
+mechanics) after we add another Gaussian dimension, rather than
+randomly. With perfect propagation we would always accept the move,
+allowing us to explore the space more efficiently. For computational
+efficiency, we prefer to propagate numerically with a faster and more
+approximate method (normally the leapfrog) and then accept according the
+the MH ratio to eventually sample proportionally to any target
+distribution \(p(x)\).
+
+We define \(U(x) = -\log(p(x))\), and with a standard normal for the
+extra dimension \(\rho\), we have the Hamiltonian
+
+\[H(x, \rho) = U(x) + \frac{\rho^2}{2}\] while Hamilton's equations give
+us the dynamics:
+
+\[\frac{\mathrm{d}x}{\mathrm{d}t} = \frac{\partial H}{\partial \rho} = \rho \, , \quad   \frac{\mathrm{d}\rho}{\mathrm{d}t} = -\frac{\partial H}{\partial x} = - \frac{\mathrm{d}U}{\mathrm{d}x}\]
+
+To propagate under these dynamics, we also need the gradient of the
+target, so let's update our definition above for the Student-\(t\) while
+keeping it back-compatible with before
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{target\_density }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, nu, }\AttributeTok{grad =} \ConstantTok{FALSE}\NormalTok{) \{}
+\NormalTok{  dens }\OtherTok{\textless{}{-}} \FunctionTok{dt}\NormalTok{(x, nu) }\CommentTok{\# Student{-}t density}
+  \ControlFlowTok{if}\NormalTok{ (grad) \{ }\CommentTok{\# return density and gradient}
+\NormalTok{    grad }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{(nu }\SpecialCharTok{+} \DecValTok{1}\NormalTok{)}\SpecialCharTok{/}\NormalTok{(nu }\SpecialCharTok{+}\NormalTok{ x}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\NormalTok{x}\SpecialCharTok{*}\NormalTok{dens}
+    \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{dens =}\NormalTok{ dens, }\AttributeTok{grad =}\NormalTok{ grad))}
+\NormalTok{  \} }\ControlFlowTok{else}\NormalTok{ \{ }\CommentTok{\# return just the density}
+    \FunctionTok{return}\NormalTok{(dens)}
+\NormalTok{  \}}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+and define our function \(U\)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{U\_fn }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, ...) \{}
+\NormalTok{  p\_x }\OtherTok{\textless{}{-}} \FunctionTok{target\_density}\NormalTok{(x, ..., }\AttributeTok{grad =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{  U }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{log}\NormalTok{(p\_x}\SpecialCharTok{$}\NormalTok{dens)}
+\NormalTok{  grad }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\DecValTok{1}\SpecialCharTok{/}\NormalTok{p\_x}\SpecialCharTok{$}\NormalTok{dens}\SpecialCharTok{*}\NormalTok{p\_x}\SpecialCharTok{$}\NormalTok{grad}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{U =}\NormalTok{ U, }\AttributeTok{grad =}\NormalTok{ grad))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+Now we're ready for our HMC code. This is similar to the MCMC code, with
+an internal loop for the leapfrog propagation. Since this takes \(L\)
+steps, we shorten the number of outside iterations a bit to compensate.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# simple HMC function}
+\CommentTok{\# n\_its is the number of iterations}
+\CommentTok{\# start\_x the initial position}
+\CommentTok{\# L is the number of steps of numerical propagation}
+\CommentTok{\# under the Hamiltionian H = U + rho\^{}2/2, U = {-}log(target\_density)}
+\CommentTok{\# epsilon is the size of the steps}
+\NormalTok{basicHMC }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(}\AttributeTok{n\_its =} \FloatTok{1e2}\NormalTok{, }\AttributeTok{start\_x =} \DecValTok{0}\NormalTok{, }\AttributeTok{L =} \DecValTok{10}\NormalTok{, }\AttributeTok{epsilon =} \FloatTok{0.1}\NormalTok{, ...) \{}
+\NormalTok{  xs }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{, n\_its) }\CommentTok{\# to store all the sampled values}
+\NormalTok{  x }\OtherTok{\textless{}{-}}\NormalTok{ start\_x }\CommentTok{\# starting point}
+\NormalTok{  xs[}\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ x }\CommentTok{\# first value}
+\NormalTok{  U\_x }\OtherTok{\textless{}{-}} \FunctionTok{U\_fn}\NormalTok{(x, ...) }\CommentTok{\# log density and gradient at current x}
+  \ControlFlowTok{for}\NormalTok{ (ii }\ControlFlowTok{in} \DecValTok{2}\SpecialCharTok{:}\NormalTok{n\_its) \{ }\CommentTok{\# HMC iterations}
+\NormalTok{    rho }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{) }\CommentTok{\# normal sample (we could define scheme with different sd)}
+\NormalTok{    x\_prop }\OtherTok{\textless{}{-}}\NormalTok{ x }
+    \CommentTok{\# Leapfrog method to propagate under Hamiltonian: }
+\NormalTok{    rho\_prop }\OtherTok{\textless{}{-}}\NormalTok{ rho }\SpecialCharTok{{-}}\NormalTok{ epsilon}\SpecialCharTok{/}\DecValTok{2}\SpecialCharTok{*}\NormalTok{U\_x}\SpecialCharTok{$}\NormalTok{grad }\CommentTok{\# half step for momentum}
+    \ControlFlowTok{for}\NormalTok{ (j }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{L) \{}
+\NormalTok{      x\_prop }\OtherTok{\textless{}{-}}\NormalTok{ x\_prop }\SpecialCharTok{+}\NormalTok{ epsilon}\SpecialCharTok{*}\NormalTok{rho\_prop }\CommentTok{\# position update }
+\NormalTok{      U\_prop }\OtherTok{\textless{}{-}} \FunctionTok{U\_fn}\NormalTok{(x\_prop, ...) }\CommentTok{\# update gradient}
+      \CommentTok{\# update momentum, with a half step at the end}
+\NormalTok{      rho\_prop }\OtherTok{\textless{}{-}}\NormalTok{ rho\_prop }\SpecialCharTok{{-}}\NormalTok{ epsilon}\SpecialCharTok{*}\NormalTok{U\_prop}\SpecialCharTok{$}\NormalTok{grad}\SpecialCharTok{/}\NormalTok{(}\DecValTok{1} \SpecialCharTok{+}\NormalTok{ (j}\SpecialCharTok{==}\NormalTok{L))}
+\NormalTok{    \}}
+\NormalTok{    MH\_prob }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(U\_x}\SpecialCharTok{$}\NormalTok{U }\SpecialCharTok{+}\NormalTok{ rho}\SpecialCharTok{\^{}}\DecValTok{2}\SpecialCharTok{/}\DecValTok{2} \SpecialCharTok{{-}}\NormalTok{ U\_prop}\SpecialCharTok{$}\NormalTok{U }\SpecialCharTok{{-}}\NormalTok{ rho\_prop}\SpecialCharTok{\^{}}\DecValTok{2}\SpecialCharTok{/}\DecValTok{2}\NormalTok{)}
+    \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{runif}\NormalTok{(}\DecValTok{1}\NormalTok{) }\SpecialCharTok{\textless{}}\NormalTok{ MH\_prob) \{ }\CommentTok{\# MH acceptance probability}
+\NormalTok{      x }\OtherTok{\textless{}{-}}\NormalTok{ x\_prop }\CommentTok{\# accept move}
+\NormalTok{      U\_x }\OtherTok{\textless{}{-}}\NormalTok{ U\_prop }\CommentTok{\# update density}
+\NormalTok{    \}}
+\NormalTok{    xs[ii] }\OtherTok{\textless{}{-}}\NormalTok{ x }\CommentTok{\# store current position, even when move rejected}
+\NormalTok{  \}}
+  \FunctionTok{return}\NormalTok{(xs)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+Now we can run a short chain again with \(\nu = 5\)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{basicHMC}\NormalTok{(}\AttributeTok{nu =} \DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+and examine the output HMC chain for different lengths. How many samples
+do we now need to get close to the Student-\(t\) distribution?
+
+Do we get good estimates for the integral from before?
+
+\subsection{Bonus Exercise 3.3 - Monte Carlo
+integration}\label{bonus-exercise-3.3---monte-carlo-integration}
+
+\textbf{NOTE}: This exercise is an optional bonus for when you have
+sufficient free time.
+
+Computing expectations can be applied to any continuous function
+
+\[E[g(x)] = \int g(x) p(x) \mathrm{d} x\]
+
+so that integrals where we recognise \(p(x)\) as (proportional to) a
+probability distribution may be estimated with Monte Carlo methods since
+
+\[E[g(x)] \approx \frac{1}{M} \sum_{i=1}^{M} g(x_i) \]
+
+for \(M\) random samples \(x_i\) sampled according to \(p(x)\). Use
+samples from a Gaussian to estimate the following three integrals:
+
+\[\int \vert x \vert \mathrm{e}^{-x^2} \mathrm{d} x \, , \qquad \int \sin(x) \mathrm{e}^{-x^2} \mathrm{d} x\, , \qquad \int \cos(x) \mathrm{e}^{-x^2} \mathrm{d} x\]
+
+\textbf{Reminder}, the Gaussian probability density has the following
+general form:
+
+\[
+p(x) = \frac{1}{\sqrt{2\pi\sigma^2}} \mathrm{e}^{- \frac{(x - \mu)^ 2}{ 2\sigma^2} }
+\]
+
+Compare the estimated values to the exact values of the integrals.
+
+\textbf{NOTE:} For the comparison to the real values, you can integrate
+analytically or use \texttt{R}'s \texttt{integrate} function. The errors
+from the true value, like standard errors in general, decrease like
+\(\frac{1}{\sqrt{M}}\).
+
+\end{document}
